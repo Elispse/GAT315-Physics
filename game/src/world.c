@@ -1,35 +1,38 @@
 ﻿#include <stdlib.h>
 #include <assert.h>
 #include <world.h>
+#include <string.h>
 
-Body* bodies = NULL;
-int bodyCount = 0;
+ekBody* ekBodies = NULL;
+int ekBodyCount = 0;
 
-Body* CreateBody()
+ekBody* CreateBody()
 {
-	//Allocate memory for new Body
-	Body* newBody = (Body*)malloc(sizeof(Body));
+	//Allocate memory for new ekBody
+	ekBody* newBody = (ekBody*)malloc(sizeof(ekBody));
 	//Check if allocation is successful
 	assert(newBody);
+
+	memset(newBody, 0, sizeof(ekBody));
 	//Initialize 'prev' to NULL and 'next' to the head of the list
 	newBody->prev = NULL;
-	newBody->next = bodies;
+	newBody->next = ekBodies;
 	//If list is not empty, update 'prev' of existing head
-	if (bodies != NULL)
+	if (ekBodies != NULL)
 	{
-		bodies->prev = newBody;
+		ekBodies->prev = newBody;
 	}
-	//Update head of the list to new Body
-	bodies = newBody;
+	//Update head of the list to new ekBody
+	ekBodies = newBody;
 	//Increment body count
-	bodyCount++;
-	//Return new Body
+	ekBodyCount++;
+	//Return new ekBody
 	return newBody;
 }
 
-void DestroyBody(Body* body)
+void DestroyBody(ekBody* body)
 {
-	//Assert if provided Body is not NULL
+	//Assert if provided ekBody is not NULL
 	assert(body != NULL);
 	//If 'prev' is not NULL, set 'prev->next' to 'body->next'
 	if (body->prev != NULL)
@@ -42,12 +45,17 @@ void DestroyBody(Body* body)
 		body->next->prev = body->prev;
 	}
 	//If body is the head, update head to 'body->next'
-	if (body == bodies)
+	if (body == ekBodies)
 	{
-		bodies = body->next;
+		ekBodies = body->next;
 	}
 	//Decrement body count
-	bodyCount--;
+	ekBodyCount--;
 	//Free the body
 	free(body);
+}
+
+void DestroyAllBodies()
+{
+
 }

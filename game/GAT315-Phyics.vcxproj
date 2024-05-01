@@ -266,6 +266,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="body.h" />
+    <ClInclude Include="src\Integrator.h" />
+    <ClInclude Include="src\mathf.h" />
     <ClInclude Include="src\screens.h" />
     <ClInclude Include="src\world.h" />
   </ItemGroup>
