@@ -7,6 +7,9 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{E9C7FDCE-D52A-8D73-7EB0-C5296AF258F6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Images">
+      <UniqueIdentifier>{546d8ab1-f0fa-4943-80a4-66df4fa837e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\screens.h">
@@ -24,12 +27,33 @@
     <ClInclude Include="src\mathf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Force.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\world.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\body.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Force.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
