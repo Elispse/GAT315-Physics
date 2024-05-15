@@ -4,9 +4,9 @@
 
 typedef enum
 {
+    BT_DYNAMIC,
     BT_STATIC,
-    BT_KINEMATIC,
-    BT_DYNAMIC
+    BT_KINEMATIC
 }ekBodyType;
 
 typedef enum
@@ -14,7 +14,7 @@ typedef enum
     FM_FORCE,
     FM_IMPULSE,
     FM_VELOCITY
-}ncForceMode;
+}ekForceMode;
 
 typedef struct ekBody
 {
@@ -34,6 +34,8 @@ typedef struct ekBody
     float gravityScale;
     float damping;
 
+    float restitution;
+
     Color color;
     int shape;
 
@@ -42,7 +44,7 @@ typedef struct ekBody
 } ekBody;
 
 
-inline void ApplyForce(ekBody* body, Vector2 force, ncForceMode fmode)
+inline void ApplyForce(ekBody* body, Vector2 force, ekForceMode fmode)
 {
     if (body->type != BT_DYNAMIC) return;
 

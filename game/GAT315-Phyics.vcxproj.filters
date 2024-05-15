@@ -36,6 +36,15 @@
     <ClInclude Include="src\editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\spring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\contact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.c">
@@ -54,6 +63,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\render.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\contact.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\collision.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

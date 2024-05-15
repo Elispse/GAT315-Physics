@@ -8,6 +8,8 @@
 #include "Force.h"
 #include "render.h"
 #include "editor.h"
+#include "collision.h"
+#include "contact.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -16,6 +18,7 @@ int main(void)
 {
 	InitWindow(1280, 720, "Pysics Engine");
 	InitEditor();
+	SetTargetFPS(60);
 
 	//initialize world
 	ekGravity = (Vector2){ 0, 0 };
@@ -40,34 +43,36 @@ int main(void)
 
 		UpdateEditor(position);
 
-		if (IsMouseButtonPressed(0))
+		
+
+		if (!ekEditorIntersect && IsMouseButtonPressed(0))
 		{
 			float angle = GetRandomFloatValue(0, 360);
 			for (int i = 0; i < 1; i++)
 			{
-				ekBody* body = CreateBody();
-				body->position = ConvertScreenToWorld(position);
-				body->mass = GetRandomFloatValue(ekEditorData.MassMinValue, ekEditorData.MassMaxValue);
-				body->inverseMass = 1 / body->mass;
-				body->type = BT_DYNAMIC;
-				body->damping = 0; // 2.5f
-				body->gravityScale = 5;
-				body->color = ColorFromHSV(GetRandomFloatValue(0, 360), 1, 1);
+				ekBody* body = CreateBody(ConvertScreenToWorld(position), ekEditorData.MassMinSliderValue, ekEditorData.BodyTypeDropActive);
+				body->damping = ekEditorData.DampingSliderValue; // 2.5f
+				body->gravityScale = ekEditorData.WorldGravitationSliderValue;
+				body->color = WHITE; //ColorFromHSV(GetRandomFloatValue(0, 360), 1, 1);
 				body->shape = 0; //GetRandomValue(0, 2);
-				//Vector2 force = Vector2Scale(GetVector2FromAngle((angle * GetRandomFloatValue(-30, 30)) * DEG2RAD), GetRandomFloatValue(1000, 2000));
-				//ApplyForce(body, force, FM_IMPULSE);
+
+				AddBody(body);
 			}
 		}
 
-
 		//ApplyForce
-		ApplyGravitation(ekBodies, ekEditorData.GravitationValue);
+		ApplyGravitation(ekBodies, ekEditorData.GravitySliderValue);
 
 		for (ekBody* body = ekBodies; body != NULL; body = body->next)
 		{
 			Step(body, dt);
 		}
 
+		// collisison
+		ekContact_t* contacts = NULL;
+		CreateContacts(ekBodies, &contacts);
+
+		// render
 		BeginDrawing();
 		ClearBackground(BLACK);
 
@@ -75,7 +80,7 @@ int main(void)
 		DrawText(TextFormat("FPS: %.2f (%.2fms", fps, 1000 / fps), 10, 10, 20, LIME);
 
 
-		DrawCircle((int)position.x, (int)position.y, 20, RED);
+		if (ekEditorIntersect) DrawCircle((int)position.x, (int)position.y, 20, RED);
 		// draw lines
 		for (ekBody* body = ekBodies; body != NULL; body = body->next)
 		{
@@ -103,11 +108,10 @@ int main(void)
 			{
 			case 0:
 				screen = ConvertWorldToScreen(body->position);
-				DrawCircle(screen.x, screen.y, ConvertWorldToPixel(body->mass), body->color);
+				DrawCircle(screen.x, screen.y, ConvertWorldToPixel(body->mass * 0.5f), body->color);
 				break;
 			case 1:
 				DrawRectangle(body->position.x, body->position.y, GetRandomValue(10, 20), GetRandomValue(10, 20), body->color);
-
 				break;
 			case 2:
 				DrawCircleLines(body->position.x, body->position.y, GetRandomValue(2, 10), body->color);
@@ -115,13 +119,22 @@ int main(void)
 			case 3:
 				if (IsImageReady(ray) == true)
 				{
-					DrawTexture(rayTex, body->position.x, body->position.y, WHITE);
+					screen = ConvertWorldToScreen(body->position);
+					DrawTexture(rayTex, screen.x, screen.y, WHITE);
 				}
 				break;
 			}
 			PushBackIndex(body->prevPositions, body->position, 100);
 		}
-		DrawEditor();
+
+		// draw contacts 
+		for (ekContact_t* contact = contacts; contact; contact = contact->next)
+		{
+			Vector2 screen = ConvertWorldToScreen(contact->body1->position);
+			DrawCircle(screen.x, screen.y, ConvertWorldToPixel(contact->body1->mass * 0.5f), RED);
+		}
+
+		DrawEditor(position);
 		EndDrawing();
 	}
 

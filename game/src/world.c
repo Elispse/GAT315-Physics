@@ -8,13 +8,23 @@ ekBody* ekBodies = NULL;
 int ekBodyCount = 0;
 Vector2 ekGravity;
 
-ekBody* CreateBody() {
-    // make space for body
+ekBody* CreateBody(Vector2 position, float mass, ekBodyType bodyType) {
     ekBody* body = (ekBody*)malloc(sizeof(ekBody));
     assert(body != NULL);
 
     memset(body, 0, sizeof(ekBody));
+    body->position = position;
+    body->mass = mass;
+    body->inverseMass = (bodyType == BT_DYNAMIC) ? 1 / mass : 0;
+    body->type = bodyType;
 
+    return body;
+}
+
+void AddBody(ekBody* body)
+{
+    assert(body);
+    // add element to linked list
     body->prev = NULL;
     body->next = ekBodies;
 
@@ -23,12 +33,10 @@ ekBody* CreateBody() {
         ekBodies->prev = body;
     }
 
-    // Update head to the new body
+    // Update head of elements to new element
     ekBodies = body;
 
     ekBodyCount++;
-
-    return body;
 }
 
 void DestroyBody(ekBody* body) {

@@ -1,6 +1,8 @@
 #include "editor.h"
 #define RAYGUI_IMPLEMENTATION
 #include "../../raygui/src/raygui.h"
+#include "render.h"
+#include "body.h"
 
 bool ekEditorActive = true;
 bool ekEditorIntersect = false;
@@ -8,7 +10,11 @@ ekEditorData_t ekEditorData;
 
 Rectangle editorRect;
 
-Vector2 anchor01 = { 950, 50 };
+//Vector2 anchor01 = { 950, 50 };
+Vector2 anchor01 = { 920, 50 };
+Vector2 anchor02 = { 952, 98 };
+Vector2 anchor03 = { 952, 285 };
+Texture2D cursorTexture;
 
 bool EditorBoxActive = true;
 
@@ -16,23 +22,72 @@ void InitEditor()
 {
     GuiLoadStyle("raygui/styles/terminal/style_terminal.rgs");
 
-    ekEditorData.GravitationValue = 2;
-    ekEditorData.MassMinValue = 0.1f;
-    ekEditorData.MassMaxValue = 1;
+    Image image = LoadImage("resources/r.png");
+    cursorTexture = LoadTextureFromImage(image);
+    cursorTexture.height = 50;
+    cursorTexture.width = 50;
+    UnloadImage(image);
+
+    ekEditorData.GravitySliderValue = 2;
+    ekEditorData.MassMinSliderValue = 0.1f;
+    ekEditorData.MassMaxSliderValue = 1;
+    ekEditorData.DampingSliderValue = 0.0f;
+    ekEditorData.WorldGravitationSliderValue = 0.0f;
+    ekEditorData.BodyTypeDropActive = 0;
+    ekEditorData.BodyTypeDropEditMode = false;
+    ekEditorData.WorldBoxActive = true;
+    ekEditorData.EditorBoxActive = true;
+
+    editorRect = (Rectangle){ anchor01.x + 0, anchor01.y + 0, 304, 616 };
 }
 
 void UpdateEditor(Vector2 position)
 {
-    //
+    if (IsKeyPressed(KEY_TAB)) EditorBoxActive = !EditorBoxActive;
+
+    ekEditorIntersect = EditorBoxActive && CheckCollisionPointRec(position, editorRect);
 }
 
-void DrawEditor()
+void DrawEditor(Vector2 position)
 {
-    if (EditorBoxActive)
+    if (ekEditorData.BodyTypeDropEditMode) GuiLock();
+
+    if (ekEditorData.EditorBoxActive)
     {
-        EditorBoxActive = !GuiWindowBox((Rectangle) { anchor01.x + 0, anchor01.y + 0, 224, 416 }, "Editor");
-        GuiSlider((Rectangle) { anchor01.x + 72, anchor01.y + 64, 120, 16 }, "Mass Min", NULL, & ekEditorData.MassMinValue, 0, 10);
-        GuiSlider((Rectangle) { anchor01.x + 72, anchor01.y + 88, 120, 16 }, "Mass Max", NULL, & ekEditorData.MassMaxValue, 0, 10);
-        GuiSliderBar((Rectangle) { anchor01.x + 72, anchor01.y + 120, 120, 16 }, "Gravitation", NULL, & ekEditorData.GravitationValue, 0, 100);
+        ekEditorData.EditorBoxActive = !GuiWindowBox((Rectangle) { anchor01.x + 0, anchor01.y + 0, 352, 440 }, "Editor");
     }
+    GuiGroupBox((Rectangle) { anchor02.x + 0, anchor02.y + 0, 280, 168 }, "Elements");
+    GuiSliderBar((Rectangle) { anchor03.x + 112, anchor03.y + 16, 120, 16 }, "World Gravitation", NULL, & ekEditorData.WorldGravitationSliderValue, 0, 100);
+    GuiSlider((Rectangle) { anchor02.x + 72, anchor02.y + 16, 120, 16 }, "Mass Min", NULL, & ekEditorData.MassMinSliderValue, 0, 10);
+    GuiSlider((Rectangle) { anchor02.x + 72, anchor02.y + 48, 120, 16 }, "Mass Max", NULL, & ekEditorData.MassMaxSliderValue, 0, 10);
+    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 112, 120, 16 }, "Gravity Scale", NULL, & ekEditorData.GravitySliderValue, 0, 100);
+    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 136, 120, 16 }, "Damping", NULL, & ekEditorData.DampingSliderValue, 0, 100);
+    GuiGroupBox((Rectangle) { anchor03.x + 0, anchor03.y + 0, 280, 120 }, "World");
+    if (GuiDropdownBox((Rectangle) { anchor02.x + 72, anchor02.y + 80, 120, 24 }, "Dynamic; Static; Kinematic", & ekEditorData.BodyTypeDropActive, ekEditorData.BodyTypeDropEditMode)) ekEditorData.BodyTypeDropEditMode = !ekEditorData.BodyTypeDropEditMode;
+
+
+    HideCursor();
+    DrawTexture(cursorTexture, (int)position.x - (cursorTexture.width / 2 - 3), (int)position.y - (cursorTexture.height / 2 - 20), WHITE);
+
+    GuiUnlock();
+}
+
+ekBody* GetBodyIntersect(ekBody* bodies, Vector2 position)
+{
+    for (ekBody* body = bodies; body; body = body->next)
+    {
+        Vector2 screen = ConvertWorldToScreen(body->position);
+        if (CheckCollisionPointCircle(position, screen, ConvertWorldToPixel(body->mass * 0.5f)))
+        {
+            return body;
+        }
+    }
+
+    return NULL;
+}
+
+void DrawLineBodyToPosition(ekBody* body, Vector2 position)
+{
+    Vector2 screen = ConvertWorldToScreen(body->position);
+    DrawLine((int)screen.x, (int)screen.y, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, YELLOW);
 }
