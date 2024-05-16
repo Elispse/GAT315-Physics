@@ -13,9 +13,13 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <spring.h>
 
 int main(void)
 {
+	ekBody* selectedBody = NULL;
+	ekBody* connectBody = NULL;
+
 	InitWindow(1280, 720, "Pysics Engine");
 	InitEditor();
 	SetTargetFPS(60);
@@ -31,11 +35,13 @@ int main(void)
 		rayTex.width = 100;
 		UnloadImage(ray);
 	}
+	// game loop
 	while (!WindowShouldClose())
 	{
 		// update 
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
+		ekGravity = (Vector2){ 0, ekEditorData.GravityScaleValue };
 
 		Vector2 position = GetMousePosition();
 		ekScreenZoom += GetMouseWheelMove() * 0.2f;
@@ -43,25 +49,47 @@ int main(void)
 
 		UpdateEditor(position);
 
-		
-
-		if (!ekEditorIntersect && IsMouseButtonPressed(0))
+		selectedBody = GetBodyIntersect(ekBodies, position);
+		if (selectedBody)
 		{
-			float angle = GetRandomFloatValue(0, 360);
-			for (int i = 0; i < 1; i++)
+			Vector2 screen = ConvertWorldToScreen(selectedBody->position);
+			DrawCircleLines(screen.x, screen.y, ConvertWorldToPixel(selectedBody->mass) + 5, YELLOW);
+		}
+		
+		if (!ekEditorIntersect)
+		{
+			if (!ekEditorIntersect && IsMouseButtonPressed(0))
 			{
-				ekBody* body = CreateBody(ConvertScreenToWorld(position), ekEditorData.MassMinSliderValue, ekEditorData.BodyTypeDropActive);
-				body->damping = ekEditorData.DampingSliderValue; // 2.5f
-				body->gravityScale = ekEditorData.WorldGravitationSliderValue;
-				body->color = WHITE; //ColorFromHSV(GetRandomFloatValue(0, 360), 1, 1);
-				body->shape = 0; //GetRandomValue(0, 2);
+				float angle = GetRandomFloatValue(0, 360);
+				for (int i = 0; i < 1; i++)
+				{
+					ekBody* body = CreateBody(ConvertScreenToWorld(position), ekEditorData.MassValue, ekEditorData.BodyTypeDropActive);
+					body->damping = ekEditorData.DampingValue; // 2.5f
+					body->gravityScale = ekEditorData.WorldGravitationSliderValue;
+					body->color = WHITE; //ColorFromHSV(GetRandomFloatValue(0, 360), 1, 1);
+					body->shape = 0; //GetRandomValue(0, 2);
 
-				AddBody(body);
+					AddBody(body);
+				}
+			}
+
+			// connect springs
+			if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) connectBody = selectedBody;
+			if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && connectBody) DrawLineBodyToPosition(connectBody, position);
+			if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody)
+			{
+				if (selectedBody && selectedBody != connectBody)
+				{
+					ekSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), ekEditorData.StiffnessValue);
+					AddSpring(spring);
+				}
 			}
 		}
+		
 
 		//ApplyForce
 		ApplyGravitation(ekBodies, ekEditorData.GravitySliderValue);
+		ApplySpringForce(ekSprings);
 
 		for (ekBody* body = ekBodies; body != NULL; body = body->next)
 		{
@@ -125,6 +153,14 @@ int main(void)
 				break;
 			}
 			PushBackIndex(body->prevPositions, body->position, 100);
+		}
+
+		// draw Springs
+		for (ekSpring_t* spring = ekSprings; spring; spring = spring->next)
+		{
+			Vector2 screen1 = ConvertWorldToScreen(spring->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(spring->body2->position);
+			DrawLine(screen1.x, screen1.y, screen2.x, screen2.y, YELLOW);
 		}
 
 		// draw contacts 

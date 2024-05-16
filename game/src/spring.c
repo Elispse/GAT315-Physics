@@ -57,6 +57,11 @@ void DestroySpring(ekSpring_t* spring)
 	free(spring);
 }
 
+void DestroyAllSprings()
+{
+	//
+}
+
 void ApplySpringForce(ekSpring_t* springs)
 {
 	for (ekSpring_t* spring = springs; spring; spring = spring->next)

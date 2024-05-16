@@ -28,15 +28,15 @@ void InitEditor()
     cursorTexture.width = 50;
     UnloadImage(image);
 
-    ekEditorData.GravitySliderValue = 2;
-    ekEditorData.MassMinSliderValue = 0.1f;
-    ekEditorData.MassMaxSliderValue = 1;
-    ekEditorData.DampingSliderValue = 0.0f;
-    ekEditorData.WorldGravitationSliderValue = 0.0f;
-    ekEditorData.BodyTypeDropActive = 0;
-    ekEditorData.BodyTypeDropEditMode = false;
-    ekEditorData.WorldBoxActive = true;
     ekEditorData.EditorBoxActive = true;
+    ekEditorData.BodyTypeDropEditMode = false;
+    ekEditorData.BodyTypeDropActive = 0;
+    ekEditorData.GravitySliderValue = 2;
+    ekEditorData.DampingValue = 0.0f;
+    ekEditorData.MassValue = 4.0f;
+    ekEditorData.StiffnessValue = 20;
+    ekEditorData.GravityScaleValue = 0;
+    ekEditorData.WorldGravitationSliderValue = 0.0f;
 
     editorRect = (Rectangle){ anchor01.x + 0, anchor01.y + 0, 304, 616 };
 }
@@ -50,21 +50,23 @@ void UpdateEditor(Vector2 position)
 
 void DrawEditor(Vector2 position)
 {
+    // toggle show / hide editor box with key press
+
     if (ekEditorData.BodyTypeDropEditMode) GuiLock();
 
-    if (ekEditorData.EditorBoxActive)
+    if (EditorBoxActive)
     {
-        ekEditorData.EditorBoxActive = !GuiWindowBox((Rectangle) { anchor01.x + 0, anchor01.y + 0, 352, 440 }, "Editor");
+        EditorBoxActive = !GuiWindowBox((Rectangle) { anchor01.x + 0, anchor01.y + 0, 344, 368 }, "Editor");
     }
     GuiGroupBox((Rectangle) { anchor02.x + 0, anchor02.y + 0, 280, 168 }, "Elements");
-    GuiSliderBar((Rectangle) { anchor03.x + 112, anchor03.y + 16, 120, 16 }, "World Gravitation", NULL, & ekEditorData.WorldGravitationSliderValue, 0, 100);
-    GuiSlider((Rectangle) { anchor02.x + 72, anchor02.y + 16, 120, 16 }, "Mass Min", NULL, & ekEditorData.MassMinSliderValue, 0, 10);
-    GuiSlider((Rectangle) { anchor02.x + 72, anchor02.y + 48, 120, 16 }, "Mass Max", NULL, & ekEditorData.MassMaxSliderValue, 0, 10);
-    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 112, 120, 16 }, "Gravity Scale", NULL, & ekEditorData.GravitySliderValue, 0, 100);
-    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 136, 120, 16 }, "Damping", NULL, & ekEditorData.DampingSliderValue, 0, 100);
-    GuiGroupBox((Rectangle) { anchor03.x + 0, anchor03.y + 0, 280, 120 }, "World");
-    if (GuiDropdownBox((Rectangle) { anchor02.x + 72, anchor02.y + 80, 120, 24 }, "Dynamic; Static; Kinematic", & ekEditorData.BodyTypeDropActive, ekEditorData.BodyTypeDropEditMode)) ekEditorData.BodyTypeDropEditMode = !ekEditorData.BodyTypeDropEditMode;
-
+    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 88, 120, 16 }, "Gravity Scale", NULL, & ekEditorData.GravitySliderValue, 0, 100);
+    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 112, 120, 16 }, "Damping", NULL, & ekEditorData.DampingValue, 0, 100);
+    GuiGroupBox((Rectangle) { anchor03.x + 0, anchor03.y + 0, 280, 80 }, "World");
+    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 64, 120, 16 }, "Mass", NULL, & ekEditorData.MassValue, 0, 10);
+    GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 136, 120, 16 }, "Stiffness (k)", NULL, & ekEditorData.StiffnessValue, 0, 100);
+    GuiSlider((Rectangle) { anchor03.x + 112, anchor03.y + 16, 120, 16 }, "Gravity", NULL, & ekEditorData.GravityScaleValue, 0, 100);
+    GuiSlider((Rectangle) { anchor03.x + 112, anchor03.y + 40, 120, 16 }, "World Gravitation", NULL, & ekEditorData.WorldGravitationSliderValue, 0, 100);
+    if (GuiDropdownBox((Rectangle) { anchor02.x + 88, anchor02.y + 24, 120, 24 }, "Dynamic; Static; Kinematic", & ekEditorData.BodyTypeDropActive, ekEditorData.BodyTypeDropEditMode)) ekEditorData.BodyTypeDropEditMode = !ekEditorData.BodyTypeDropEditMode;
 
     HideCursor();
     DrawTexture(cursorTexture, (int)position.x - (cursorTexture.width / 2 - 3), (int)position.y - (cursorTexture.height / 2 - 20), WHITE);

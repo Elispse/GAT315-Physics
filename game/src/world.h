@@ -1,5 +1,9 @@
 #pragma once
-#include <body.h>
+#include "raylib.h"
+#include "body.h"
+
+typedef struct ekBody ekBody;
+
 extern ekBody* ekBodies;
 extern int ekBodyCount;
 extern Vector2 ekGravity;
