@@ -58,7 +58,7 @@ int main(void)
 		
 		if (!ekEditorIntersect)
 		{
-			if (!ekEditorIntersect && IsMouseButtonPressed(0))
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_CONTROL))
 			{
 				float angle = GetRandomFloatValue(0, 360);
 				for (int i = 0; i < 1; i++)
@@ -68,6 +68,7 @@ int main(void)
 					body->gravityScale = ekEditorData.WorldGravitationSliderValue;
 					body->color = WHITE; //ColorFromHSV(GetRandomFloatValue(0, 360), 1, 1);
 					body->shape = 0; //GetRandomValue(0, 2);
+					body->restitution = 0.3f;
 
 					AddBody(body);
 				}
@@ -99,6 +100,8 @@ int main(void)
 		// collisison
 		ekContact_t* contacts = NULL;
 		CreateContacts(ekBodies, &contacts);
+		SeparateContacts(contacts);
+		ResolveContacts(contacts);
 
 		// render
 		BeginDrawing();
@@ -106,6 +109,7 @@ int main(void)
 
 		// stats
 		DrawText(TextFormat("FPS: %.2f (%.2fms", fps, 1000 / fps), 10, 10, 20, LIME);
+		DrawText(TextFormat("FRAME: %.4f", dt), 10, 30, 20, LIME);
 
 
 		if (ekEditorIntersect) DrawCircle((int)position.x, (int)position.y, 20, RED);
