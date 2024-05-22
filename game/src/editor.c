@@ -64,7 +64,7 @@ void DrawEditor(Vector2 position)
     GuiGroupBox((Rectangle) { anchor03.x + 0, anchor03.y + 0, 280, 80 }, "World");
     GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 64, 120, 16 }, "Mass", NULL, & ekEditorData.MassValue, 0, 10);
     GuiSliderBar((Rectangle) { anchor02.x + 88, anchor02.y + 136, 120, 16 }, "Stiffness (k)", NULL, & ekEditorData.StiffnessValue, 0, 100);
-    GuiSlider((Rectangle) { anchor03.x + 112, anchor03.y + 16, 120, 16 }, "Gravity", NULL, & ekEditorData.GravityScaleValue, 0, 100);
+    GuiSlider((Rectangle) { anchor03.x + 112, anchor03.y + 16, 120, 16 }, "Gravity", NULL, & ekEditorData.GravityScaleValue, -15, 15);
     GuiSlider((Rectangle) { anchor03.x + 112, anchor03.y + 40, 120, 16 }, "World Gravitation", NULL, & ekEditorData.WorldGravitationSliderValue, 0, 100);
     if (GuiDropdownBox((Rectangle) { anchor02.x + 88, anchor02.y + 24, 120, 24 }, "Dynamic; Static; Kinematic", & ekEditorData.BodyTypeDropActive, ekEditorData.BodyTypeDropEditMode)) ekEditorData.BodyTypeDropEditMode = !ekEditorData.BodyTypeDropEditMode;
 

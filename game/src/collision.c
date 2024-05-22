@@ -68,8 +68,8 @@ void SeparateContacts(ekContact_t* contacts)
 		// Calculate the total inverse mass of the bodies involved in the contact
 		float totalInverseMass = contact->body1->inverseMass + contact->body2->inverseMass;
 
-		// Calculate the separation vector using the contact's normal and depth,
-		// scaled by the total inverse mass
+		// Calculate the separation vector using the Vector2Scale method passing in,
+		// contact normal and contact depth divided by total inverse mass
 		Vector2 separation = Vector2Scale(contact->normal, contact->depth / totalInverseMass);
 
 		// Update the position of the first body by adding the scaled separation vector,

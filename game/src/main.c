@@ -35,12 +35,18 @@ int main(void)
 		rayTex.width = 100;
 		UnloadImage(ray);
 	}
+
+	double fixedTimestep = 1.0 / 60;
+	double timeAccumulator = 0.0;
+
+
 	// game loop
 	while (!WindowShouldClose())
 	{
 		// update 
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
+
 		ekGravity = (Vector2){ 0, ekEditorData.GravityScaleValue };
 
 		Vector2 position = GetMousePosition();
@@ -65,10 +71,10 @@ int main(void)
 				{
 					ekBody* body = CreateBody(ConvertScreenToWorld(position), ekEditorData.MassValue, ekEditorData.BodyTypeDropActive);
 					body->damping = ekEditorData.DampingValue; // 2.5f
-					body->gravityScale = ekEditorData.WorldGravitationSliderValue;
+					body->gravityScale = 1;// ekEditorData.WorldGravitationSliderValue;
 					body->color = WHITE; //ColorFromHSV(GetRandomFloatValue(0, 360), 1, 1);
 					body->shape = 0; //GetRandomValue(0, 2);
-					body->restitution = 0.3f;
+					body->restitution = 0.6f;
 
 					AddBody(body);
 				}
@@ -87,6 +93,26 @@ int main(void)
 			}
 		}
 		
+		timeAccumulator += dt;
+		while (timeAccumulator >= fixedTimestep)
+		{
+			timeAccumulator -= fixedTimestep;
+
+			//ApplyForce
+			ApplyGravitation(ekBodies, ekEditorData.GravitySliderValue);
+			ApplySpringForce(ekSprings);
+
+			for (ekBody* body = ekBodies; body != NULL; body = body->next)
+			{
+				Step(body, dt);
+			}
+
+			// collisison
+			ekContact_t* contacts = NULL;
+			CreateContacts(ekBodies, &contacts);
+			SeparateContacts(contacts);
+			ResolveContacts(contacts);
+		}
 
 		//ApplyForce
 		ApplyGravitation(ekBodies, ekEditorData.GravitySliderValue);
