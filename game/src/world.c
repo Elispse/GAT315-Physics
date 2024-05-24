@@ -63,3 +63,9 @@ void DestroyBody(ekBody* body) {
     // free memory
     free(body);
 }
+
+void DestroyAllBodies()
+{
+    if (!ekBodies);
+
+}

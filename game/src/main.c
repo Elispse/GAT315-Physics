@@ -80,15 +80,35 @@ int main(void)
 				}
 			}
 
-			// connect springs
-			if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) connectBody = selectedBody;
-			if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && connectBody) DrawLineBodyToPosition(connectBody, position);
-			if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody)
+			if (IsKeyDown(KEY_LEFT_ALT))
 			{
-				if (selectedBody && selectedBody != connectBody)
+				if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) connectBody = selectedBody;
+				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && connectBody) DrawLineBodyToPosition(connectBody, position);
+				if (connectBody)
 				{
-					ekSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), ekEditorData.StiffnessValue);
-					AddSpring(spring);
+					Vector2 world = ConvertScreenToWorld(position);
+					if (connectBody->type == BT_STATIC || connectBody->type == BT_KINEMATIC)
+					{
+						connectBody->position = world;
+					}
+					else
+					{
+						ApplySpringForcePosition(world, connectBody, 0, 20, 5);
+					}
+				}
+			}
+			else
+			{
+				// connect springs
+				if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) connectBody = selectedBody;
+				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && connectBody) DrawLineBodyToPosition(connectBody, position);
+				if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody)
+				{
+					if (selectedBody && selectedBody != connectBody)
+					{
+						ekSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), ekEditorData.StiffnessValue);
+						AddSpring(spring);
+					}
 				}
 			}
 		}
