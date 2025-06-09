@@ -66,6 +66,16 @@ void DestroyBody(ekBody* body) {
 
 void DestroyAllBodies()
 {
-    if (!ekBodies);
+    ekBody* currentBody = ekBodies;
+    ekBody* nextBody = NULL;
 
+    while (currentBody != NULL)
+    {
+        nextBody = currentBody->next;
+        free(currentBody);
+        currentBody = nextBody;
+    }
+
+    ekBodies = NULL;
+    ekBodyCount = 0;
 }

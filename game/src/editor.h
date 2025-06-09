@@ -12,6 +12,10 @@ typedef struct ekEditorData
     float StiffnessValue;
     float GravityScaleValue;
     float WorldGravitationSliderValue;
+    bool Simulate_toggleActive;
+    bool Reset_buttonPressed;
+    float Timestep_sliderValue;
+    float Restitution_sliderValue;
 
 } ekEditorData_t;
 extern ekEditorData_t ekEditorData;

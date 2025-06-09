@@ -36,13 +36,16 @@ int main(void)
 		UnloadImage(ray);
 	}
 
-	double fixedTimestep = 1.0 / 60;
+	ekEditorData.Timestep_sliderValue = 1.0f;
+
+	
 	double timeAccumulator = 0.0;
 
-
+	ekEditorData.Simulate_toggleActive = true;
 	// game loop
 	while (!WindowShouldClose())
 	{
+		double fixedTimestep = 1 / ekEditorData.Timestep_sliderValue;
 		// update 
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
@@ -61,7 +64,7 @@ int main(void)
 			Vector2 screen = ConvertWorldToScreen(selectedBody->position);
 			DrawCircleLines(screen.x, screen.y, ConvertWorldToPixel(selectedBody->mass) + 5, YELLOW);
 		}
-		
+
 		if (!ekEditorIntersect)
 		{
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_CONTROL))
@@ -74,7 +77,7 @@ int main(void)
 					body->gravityScale = 1;// ekEditorData.WorldGravitationSliderValue;
 					body->color = WHITE; //ColorFromHSV(GetRandomFloatValue(0, 360), 1, 1);
 					body->shape = 0; //GetRandomValue(0, 2);
-					body->restitution = 0.6f;
+					body->restitution = ekEditorData.Restitution_sliderValue;
 
 					AddBody(body);
 				}
@@ -84,6 +87,11 @@ int main(void)
 			{
 				if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) connectBody = selectedBody;
 				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && connectBody) DrawLineBodyToPosition(connectBody, position);
+				if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+				{
+					selectedBody = NULL;
+					connectBody = NULL;
+				}
 				if (connectBody)
 				{
 					Vector2 world = ConvertScreenToWorld(position);
@@ -112,11 +120,29 @@ int main(void)
 				}
 			}
 		}
-		
-		timeAccumulator += dt;
-		while (timeAccumulator >= fixedTimestep)
+		if (ekEditorData.Simulate_toggleActive)
 		{
-			timeAccumulator -= fixedTimestep;
+			timeAccumulator += dt;
+			while (timeAccumulator >= fixedTimestep)
+			{
+				timeAccumulator -= fixedTimestep;
+
+				//ApplyForce
+				ApplyGravitation(ekBodies, ekEditorData.GravitySliderValue);
+				ApplySpringForce(ekSprings);
+
+				for (ekBody* body = ekBodies; body != NULL; body = body->next)
+				{
+					Step(body, dt);
+				}
+
+				// collisison
+				ekContact_t* contacts = NULL;
+				CreateContacts(ekBodies, &contacts);
+				SeparateContacts(contacts);
+				ResolveContacts(contacts);
+			}
+
 
 			//ApplyForce
 			ApplyGravitation(ekBodies, ekEditorData.GravitySliderValue);
@@ -126,21 +152,6 @@ int main(void)
 			{
 				Step(body, dt);
 			}
-
-			// collisison
-			ekContact_t* contacts = NULL;
-			CreateContacts(ekBodies, &contacts);
-			SeparateContacts(contacts);
-			ResolveContacts(contacts);
-		}
-
-		//ApplyForce
-		ApplyGravitation(ekBodies, ekEditorData.GravitySliderValue);
-		ApplySpringForce(ekSprings);
-
-		for (ekBody* body = ekBodies; body != NULL; body = body->next)
-		{
-			Step(body, dt);
 		}
 
 		// collisison
@@ -221,6 +232,11 @@ int main(void)
 		}
 
 		DrawEditor(position);
+		if (ekEditorData.Reset_buttonPressed)
+		{
+			DestroyAllBodies();
+			DestroyAllSprings();
+		}
 		EndDrawing();
 	}
 
@@ -228,7 +244,6 @@ int main(void)
 	{
 		DestroyBody(ekBodies);
 	}
-
 
 	CloseWindow();
 	return 0;

@@ -1,4 +1,5 @@
 #pragma once
+#include "raylib.h"
 
 typedef struct ekSpring
 {
@@ -19,3 +20,4 @@ void DestroySpring(ekSpring_t* spring);
 void DestroyAllSprings();
 
 void ApplySpringForce(ekSpring_t* springs);
+void ApplySpringForcePosition(Vector2 position, struct ekBody* body, float restLength, float k, float damping);
